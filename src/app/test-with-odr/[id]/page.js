@@ -1,20 +1,10 @@
 import styles from "../../page.module.css";
 
-export const revalidate = 60;
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-    return [1,2,3,4,5].map((id) => ({
-      id: String(id),
-    }))
-  }
-
 export default async function Home({params}) {
   const { id } = await params;
   const API_URL = process.env.API_URL;
-  const res = await fetch(`${API_URL}/api/posts/${id}`, {
-    next: { revalidate: 10 }, // ✅ ISR config
-  })
+  console.log(API_URL,"API_URL")
+  const res = await fetch(`${API_URL}/api/posts/${id}`)
   console.log(res)
   const post = await res.json();
   return (
