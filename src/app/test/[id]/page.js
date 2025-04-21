@@ -1,34 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import styles from "../../page.module.css";
 
-export const revalidate = 60;
-export const dynamicParams = true;
+export default function PostPage() {
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-export async function generateStaticParams() {
-    return [1,2,3,4,5].map((id) => ({
-      id: String(id),
-    }))
+  useEffect(() => {
+    async function fetchPost() {
+      try {
+        const baseUrl = window.location.origin;
+        const res = await fetch(`${baseUrl}/api/posts/${id}`);
+        const data = await res.json();
+        setPost(data);
+      } catch (err) {
+        console.error("Failed to fetch post", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) fetchPost();
+  }, [id]);
+
+  if (loading) {
+    return <div className={styles.page}><p>Loading...</p></div>;
   }
 
-export default async function Home({params}) {
-  const { id } = await params;
-  const API_URL = "http://localhost:3000";
-  const res = await fetch(`${API_URL}/api/posts/${id}`, {
-    next: { revalidate: 10 }, // ✅ ISR config
-  })
-  console.log(res)
-  const post = await res.json();
+  if (!post) {
+    return <div className={styles.page}><p>Post not found.</p></div>;
+  }
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
         <h3>POST data</h3>
-            <div key={`${post.userId}`}>
-            <p>userId: {post.userId}</p>
-              <p>id: {post.id}</p>
-              <p>title: {post.title}</p>
-              <p>body: {post.body}</p>
-              <p>timestamp: {post.timestamp}</p>
-            </div>
-    </main>
+        <div key={`${post.userId}`}>
+          <p>userId: {post.userId}</p>
+          <p>id: {post.id}</p>
+          <p>title: {post.title}</p>
+          <p>body: {post.body}</p>
+          <p>timestamp: {post.timestamp}</p>
+        </div>
+      </main>
     </div>
   );
 }
