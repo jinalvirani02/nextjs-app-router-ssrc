@@ -11,7 +11,7 @@ export async function generateStaticParams() {
 
 export default async function Home({params}) {
   const { id } = await params;
-  const API_URL = "http://localhost:3000";
+  const API_URL = process.env.API_URL;
   const res = await fetch(`${API_URL}/api/posts/${id}`, {
     next: { revalidate: 10 }, // ✅ ISR config
   })
